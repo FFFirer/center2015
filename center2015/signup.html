@@ -1,0 +1,91 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <script src="jquery-3.1.1.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        <!--需要校验表单数据-->
+        $(document).ready(function () {
+            $("#btnSubmit").click(function () {
+                var sub = $("#signupForm").serialize();
+                alert(sub);
+                //提交数据
+                //$("#signupForm").submit();
+                $.ajax({
+                    url: "signupHandler.ashx",
+                    type: "post",
+                    data: sub,
+                    success: function (res) {
+                        var mes = res.split('@');
+                        if (mes[0] == "success")
+                        {
+                            $(location).attr('href', 'signUpSuccess.aspx');
+                            //alert(mes[0]+" and "+mes[1])
+                            session["id"] = mes[1];
+                        }
+                        else
+                        {
+                            alert("注册失败");
+                        }
+                    }
+                
+                });
+            });
+        });
+    
+    </script>
+    <link rel="stylesheet" href="style.css" type="text/css" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>信息注册</title>
+	<meta charset="utf-8" />
+</head>
+<body>
+    <br />
+    <div class="signUpField">
+        <fieldset>
+            <legend>注册</legend>
+            <form id="signupForm">
+            <table>
+                <tr>
+                    <td>姓名：</td>
+                    <td><input name="name" type="text" autofocus/></td>
+                </tr>
+                <tr>
+                    <td>设置密码：</td>
+                    <td><input name="password" type="password" /></td>
+                </tr>
+                <tr>
+                    <td>重复密码：</td>
+                    <td><input name="repeat" type="password" /></td>
+                </tr>
+                <tr>
+                    <td>性别：</td>
+                    <td><input name="sex" checked="checked" type="radio" value="male"/>男 &nbsp;&nbsp;<input name="sex" type="radio" value="female"/>女</td>
+                </tr>
+                <tr>
+                    <td>年龄：</td>
+                    <td><input name="age" type="text" /></td>
+                </tr>
+                <tr>
+                    <td>联系电话：</td>
+                    <td><input name="tel" type="text" /></td>
+                </tr>
+                <tr>
+                    <td>出生年月：</td>
+                    <td><input name="birth" type="text" /> 格式为YYYYMMDD,例如19960101.</td>
+                </tr>
+                <tr>
+                    <td>家庭住址：</td>
+                    <td><input name="address" type="text" /></td>
+                </tr>
+            </table>
+        </form>
+            <table>
+                <tr>
+                    <td><button id="btnSubmit" >提交信息</button></td>
+                    <td><a href="Login.html"><small>返回登陆页面</small></a></td>
+                </tr>
+            </table>
+        </fieldset>
+    </div>
+</body>
+</html>

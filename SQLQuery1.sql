@@ -1,0 +1,1 @@
+﻿insert into stuInfo(stuId,stuName,Password,stuSex,stuTelephoneNum,stuBirth,stuHometown,majorName,className,stuEntranceYear,stuHomeAddress)values('x','x','x','x','x','x','x','x','x','x','x');

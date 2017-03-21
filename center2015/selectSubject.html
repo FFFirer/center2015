@@ -1,0 +1,229 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <script src="jquery-3.1.1.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        //自动填充下拉框
+        var kc = "lessonName";
+        var xq = "lessonTeam";
+        var ls = "lessonTeacher";
+        var dd = "lessonAddress";
+        $.ajax({
+            url:'getList.ashx',
+            type: 'post',
+            data:{'kc':kc,'xq':xq,'ls':ls,'dd':dd},
+            success: function (data) {
+                var arr = data.split("@");
+                $("#kc").html(arr[0]);
+                $("#xq").html(arr[1]);
+                $("#ls").html(arr[2]);
+                $("#dd").html(arr[3]);
+        }
+        });
+        
+        $(document).ready(function () {
+            //根据不同的条件进行检索
+            //按课程名
+            $("#selectkc").click(function () {
+                var kc = $("#kc").val();
+                $.ajax({
+                    url: 'selectHandler.ashx',
+                    type: 'post',
+                    data: { "key": "lessonName", "value": kc },
+                    success: function (data) {
+                        $("#enable").html(data);
+                    }
+                });
+            });
+            //按学期
+            $("#selectxq").click(function () {
+                var xq = $("#xq").val();
+                $.ajax({
+                    url: 'selectHandler.ashx',
+                    type: 'post',
+                    data: { "key": "lessonTeam", "value": xq },
+                    success: function (data) {
+                        $("#enable").html(data);
+                    }
+                });
+            });
+            //按授课教师
+            $("#selectls").click(function () {
+                var ls = $("#ls").val();
+                $.ajax({
+                    url: 'selectHandler.ashx',
+                    type: 'post',
+                    data: { "key": "lessonTeacher", "value": ls },
+                    success: function (data) {
+                        $("#enable").html(data);
+                    }
+                });
+            });
+            //按上课地点
+            $("#selectdd").click(function () {
+                var dd = $("#dd").val();
+                $.ajax({
+                    url: 'selectHandler.ashx',
+                    type: 'post',
+                    data: { "key": "lessonAddress", "value": dd },
+                    success: function (data) {
+                        $("#enable").html(data);
+                    }
+                });
+            });
+            //添加选择课程到待添加课程
+            var arrCourse = new Array();
+            $(document).on('click', 'input[id^="btn"]', function () {
+                //alert("取到值");
+                var obj = $(this).attr('id');
+                num = obj.substring(3, obj.length);
+                if (arrCourse[num]==null)
+                {
+                    arrCourse[num]=num;
+                    //alert(num);
+                    inner = $("#tr" + num).html();
+                    //alert(inner);
+                    var sp = inner.split('id="btn' + num + '"');
+                    //alert(sp[0]);
+                    inner = sp[0] + 'id="del' + num + '"' + sp[1];
+                    var dp = inner.split('添加');
+                    inner = dp[0] + '删除' + dp[1];
+                    //alert(inner);
+                    inner = "<tr id='dtr" + num + "'>" + inner + "</tr>"
+                    $("#done").append(inner);
+                }
+                else
+                {
+                    alert("你已添加此课程！");
+                }
+                
+            });
+            //从已选课程删除
+            $(document).on('click', 'input[id^="del"]', function () {
+                var obj = $(this).attr('id');
+                num = obj.substring(3, obj.length);
+                //alert(num);
+                $(this).parent("td").parent("tr").remove();
+                arrCourse[num] =null;
+            });
+            //提交所选课程
+            $("#sub").click(function () {
+                var output = "";
+                for(var key in arrCourse)
+                {
+                    if(output=="")
+                    {
+                        output = arrCourse[key];
+                    }
+                    else
+                    {
+                        output += "@" + arrCourse[key];
+                    }
+                }
+                $.ajax({
+                    url: 'PostCourse.ashx',
+                    type: 'post',
+                    data: { "lessonCode": output },
+                    success: function (data) {
+                        if(data=="success")
+                        {
+                            $(location).attr('href', 'selectLessonState.html');
+                        }
+                        else if(data=="fail")
+                        {
+                            alert("your post failed");
+                        }
+                        else {
+                            alert(data);
+                        }
+                    }
+                });
+            });
+        });
+        
+    </script>
+    <link rel="stylesheet" href="style.css" type="text/css" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>课程选择</title>
+	<meta charset="utf-8" />
+</head>
+<body>
+    <div>
+        <nav>
+            <a href="Home.html">首页</a>
+            学生选课
+            <a href="selectLessonState.html">选课情况查询</a>
+            <a href="detail.html">学生信息</a>
+            &nbsp;&nbsp;&nbsp;
+            <a href="Login.html">退出登陆</a>
+            <a href="#"></a>
+            <a href="#"></a>
+        </nav>
+    </div>
+    <hr />
+    <div>
+        <fieldset>
+            <legend>筛选条件</legend>
+            <table>
+                <tr>
+                    <td>课程名：</td>
+                    <td><select id="kc" class="sel"></select>&nbsp;</td>
+                    <td><input type="button" id="selectkc" class="btn" value="按课程名筛选"/></td>
+                </tr>
+                <tr>
+                    <td>学期：</td>
+                    <td><select id="xq" class="sel"></select>&nbsp;</td>
+                    <td><button id="selectxq" class="btn">按学期筛选</button></td>
+                </tr>
+                <tr>
+                    <td>老师：</td>
+                    <td><select id="ls" class="sel"></select>&nbsp;</td>
+                    <td><button id="selectls" class="btn">按授课教师筛选</button></td>
+                </tr>
+                <tr>
+                    <td>授课地点：</td>
+                    <td><select id="dd" class="sel"></select> &nbsp;</td>
+                    <td><button id="selectdd" class="btn">按上课地点筛选</button></td>
+                </tr>
+            </table>
+            
+            
+            
+            
+        </fieldset>
+    </div>
+    <br />
+    <div>
+        <fieldset>
+            <legend>可选课程</legend>
+                <table id="enable">
+<!--                  <tr>
+                        <td>选择</td>
+                        <td>课程名</td>
+                        <td>授课老师</td>
+                        <td>授课时间</td>
+                        <td>授课地点</td>
+                      </tr>-->
+                </table>
+        </fieldset>
+    </div>
+    <br />
+    <div>
+        <fieldset>
+            <legend>已选课程</legend>
+            <form>
+                <table id="done">
+                     <tr>
+                        <td>选择</td>
+                        <td>课程名</td>
+                        <td>授课老师</td>
+                        <td>授课时间</td>
+                        <td>授课地点</td>
+                      </tr>
+                </table>
+                <button id="sub">提交</button><h3 style="color:red">只有一次提交机会</h3>
+            </form>
+        </fieldset>
+    </div>
+</body>
+</html>
